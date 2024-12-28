@@ -9,3 +9,9 @@ class Transaction(db.Model):
 
     def __repr__(self):
         return f'<Transaction {self.id} - {self.type} - {self.amount}>'
+
+    # Método para validar o valor
+    def validate(self):
+        if self.amount <= 0:
+            return False, "O valor da transação deve ser maior que zero."
+        return True, None

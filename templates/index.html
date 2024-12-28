@@ -4,6 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adicionar Transação</title>
+    <style>
+
+
+.logout-btn {
+            padding: 10px 15px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            margin-top: 20px;
+        }
+        .logout-btn:hover {
+            background-color: #d32f2f;
+        }
+        body {
+            font-family: Arial, sans-serif;
+        }
+        label {
+            margin-top: 10px;
+        }
+        input {
+            margin-bottom: 10px;
+        }
+        button {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
     <h1>Adicionar Transação</h1>
@@ -12,9 +40,9 @@
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             <ul>
-            {% for message in messages %}
-                <li>{{ message }}</li>
-            {% endfor %}
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
             </ul>
         {% endif %}
     {% endwith %}
@@ -37,5 +65,6 @@
 
     <br>
     <a href="{{ url_for('transactions') }}">Voltar para a lista de transações</a>
+    <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
 </body>
 </html>
