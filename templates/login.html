@@ -31,6 +31,19 @@
     </style>
 </head>
 <body>
+
+ <!-- Exibir mensagens de flash -->
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <ul>
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+{% endwith %}
+
+
     <h1>Login</h1>
     <form method="POST">
         <label for="username">Usuário:</label>

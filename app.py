@@ -37,10 +37,9 @@ def login():
             return redirect(url_for('index'))  # Redireciona para a página principal
         else:
             flash('Credenciais inválidas!', 'danger')
-            return redirect(url_for('login'))
+            return render_template('login.html')
 
     return render_template('login.html')
-
 # Página inicial
 @app.route('/')
 @login_required  # Protege a rota para que somente usuários autenticados possam acessá-la
