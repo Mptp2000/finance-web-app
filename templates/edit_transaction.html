@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Transação</title>
+</head>
+<body>
+    <h1>Editar Transação</h1>
+    <style>
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            font-size: 14px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+
+
+    </style>
+    <form action="{{ url_for('edit_transaction', transaction_id=transaction.id) }}" method="POST">
+
+        <label for="description">Descrição:</label>
+        <input type="text" id="description" name="description" value="{{ transaction.description }}" required>
+        <br><br>
+        
+        <label for="amount">Valor:</label>
+        <input type="number" id="amount" name="amount" value="{{ transaction.amount }}" required>
+        <br><br>
+        
+        <label for="date">Data:</label>
+        <input type="date" id="date" name="date" value="{{ transaction.date }}" required>
+        <br><br>
+        <div>
+            <button type=" submit" class="btn">Salvar </button>
+            <a href="{{ url_for('transactions') }}" class="btn">Voltar para a lista de transações
+               
+            </a>
+            
+        </div>
+  
