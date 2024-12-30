@@ -7,43 +7,25 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from models.User import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
+import locale
+# Configura o local para o Brasil
+locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+
+
+
+
+
 
 
 # Criação da aplicação Flask
 app = Flask(__name__)
 app.config.from_object(Config)
 
+
+
+
 # Inicializando a instância do SQLAlchemy (somente uma vez)
 db.init_app(app)  # Esta linha garante que o Flask app use o db corretamente
-
-# Função para excluir todos os usuários, exceto o admin
-def delete_all_users_except_admin():
-    with app.app_context():  # Garante que o código rode dentro do contexto da aplicação
-        users = User.query.all()
-        for user in users:
-            if user.username != 'admin':
-                db.session.delete(user)
-        db.session.commit()
-        print("Usuários excluídos com sucesso, exceto o admin.")
-
-# Função para criar um novo usuário admin
-def create_admin_user():
-    with app.app_context():  # Garante que o código rode dentro do contexto da aplicação
-        admin = User.query.filter_by(username='admin').first()
-        if not admin:
-            admin = User(username='admin', password=generate_password_hash('123456'))
-            db.session.add(admin)
-            db.session.commit()
-            print("Usuário admin criado com sucesso.")
-        else:
-            print("Usuário admin já existe.")
-
-# Código principal para executar as funções
-if __name__ == "__main__":
-    # Garante que a aplicação esteja rodando antes de executar as funções
-    with app.app_context():  # Garantindo que o contexto da aplicação esteja disponível
-        delete_all_users_except_admin()
-        create_admin_user()
 
 # Configuração do login manager
 login_manager = LoginManager()
@@ -91,7 +73,12 @@ def index():
 @login_required  # Protege a rota
 def transactions():
     transactions = Transaction.query.all()
-    return render_template('transactions.html', transactions=transactions)
+    valor = sum(transaction.amount for transaction in transactions )
+    valor_formatado = locale.currency(valor, grouping=True)
+
+
+    
+    return render_template('transactions.html', transactions=transactions, valor_formatado=valor_formatado)
 
 # Adicionar transação
 @app.route('/add_transaction', methods=['POST'])
@@ -116,7 +103,8 @@ def add_transaction():
         type=transaction_type,
         category=category,
         amount=amount,
-        date=date
+        date=date,
+       
     )
     db.session.add(new_transaction)
     db.session.commit()
@@ -150,7 +138,7 @@ def edit_transaction(id):
     return render_template('edit_transaction.html', transaction=transaction)
 
 # Excluir transação
-@app.route('/delete/<int:id>', methods=['POST'])
+@app.route('/delete/<int:id>', methods=['GET'])
 @login_required
 def delete_transaction(id):
     transaction = Transaction.query.get_or_404(id)
@@ -158,7 +146,7 @@ def delete_transaction(id):
     db.session.commit()
 
     flash("Transação excluída com sucesso!", "success")
-    return redirect(url_for('index'))
+    return redirect(url_for('transactions'))
 
 # Rota para logout
 @app.route('/logout')
@@ -204,37 +192,16 @@ def register():
 def create_tables():
     db.create_all()
 
-@app.before_request
-def create_test_user():
-    db.create_all()  # Cria as tabelas se ainda não existirem
-    if not User.query.filter_by(username='admin').first():
-        test_user = User(
-            username='admin',
-            password=generate_password_hash('123456')  # Criptografa a senha do usuário de teste
-        )
-        db.session.add(test_user)
-        db.session.commit()
-        print("Usuário de teste criado: admin / 123456")
+
+# Crie um filtro customizado para formatar a moeda
+@app.template_filter('format_currency')
+def format_currency(value):
+    try:
+        return locale.currency(value, grouping=True)
+    except:
+        return value  # Caso falhe, retorna o valor sem formatação    
 
 
 
-# Função para criar o usuário administrador
-def create_admin_user():
-    with app.app_context():  # Garante que o código rode dentro do contexto da aplicação
-        # Verifica se o usuário admin já existe
-        admin = User.query.filter_by(username='MTP').first()
-        if not admin:
-            # Criptografa a senha e cria o usuário admin
-            admin = User(username='MTP', password=generate_password_hash('123456'))
-            db.session.add(admin)
-            db.session.commit()
-            print("Usuário admin criado com sucesso.")
-        else:
-            print("Usuário admin já existe.")
 
-# Chama a função para criar o administrador
-create_admin_user()
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
+app.run(debug=True)        
