@@ -73,7 +73,10 @@
 
     <form action="/add_transaction" method="POST">
         <label for="type">Tipo (Receita/Despesa):</label>
-        <input type="text" name="type" id="type" required><br><br>
+        <select name="type" id="type" required>
+            <option value="receita">Receita</option>
+            <option value="despesa">Despesa</option>
+        </select>
 
         <label for="category">Categoria:</label>
         <input type="text" name="category" id="category" required><br><br>

@@ -58,39 +58,50 @@
             </ul>
         {% endif %}
     {% endwith %}
-
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Tipo</th>
-                <th>Categoria</th>
-                <th>Valor</th>
-                <th>Data</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for transaction in transactions %}
-                <tr>
-                    <td>{{ transaction.id }}</td>
-                    <td>{{ transaction.type }}</td>
-                    <td>{{ transaction.category }}</td>
-                    <td>{{ transaction.amount | format_currency }}</td>
-                    <td>{{ transaction.date }}</td>
-                    <td class="actions">
-                        <a href="/edit/{{ transaction.id }}">Editar</a> |
-                        <a href="/delete/{{ transaction.id }}" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
-                    </td>
-                    
-                </tr>
-            {% else %}
-                <tr>
-                    <td colspan="6">Nenhuma transação encontrada.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
+    
     </table>
+    <h2>Receitas</h2>
+<table>
+    {% for receita in receitas %}
+    <tr>
+        
+        <td>{{ receita.category }}</td>
+        <td>{{ receita.amount | format_currency }}</td>
+        <td>{{ receita.date }}</td>
+        <td class="actions">
+            <a href="/edit/{{ receita.id }}">Editar</a> |
+            <a href="/delete/{{ receita.id }}" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
+        </td>
+ 
+
+    </tr>
+    {% endfor %}   
+</table>
+<p>Total de Receitas: {{ total_receitas | format_currency }}</p>
+</table>
+
+<h2>Despesas</h2>
+<table>
+    {% for despesa in despesas %}
+    <tr>
+        
+        <td>{{ despesa.category }}</td>
+        <td>{{ despesa.amount | format_currency }}</td>
+        <td>{{ despesa.date }}</td>
+        <td class="actions">
+            <a href="/edit/{{ despesa.id }}">Editar</a> |
+            <a href="/delete/{{ despesa.id }}" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
+        </td>
+         
+    </tr>
+    {% endfor %}
+</table>
+<p>Total de Despesas: {{ total_despesas | format_currency }}</p>
+<h3>Patrimônio: {{ saldo_total | format_currency }}</h3>
+ 
+    
+   
+</table>
 
     <br>
     <a href="{{ url_for('index') }}">Voltar para a página inicial</a>
@@ -98,7 +109,7 @@
     <!-- Botão de logout -->
     <br><br>
     <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
-    <p>Total: {{ valor_formatado }}</p>
+   
 
 </body>
 </html>
