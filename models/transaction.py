@@ -12,7 +12,7 @@ class Transaction(db.Model):
   
 
     def __repr__(self):
-        return f'<Transaction {self.category} - {self.type} - {self.amount}>'
+        return f'<Transaction {self.id} - {self.type} - {self.amount}>'
 
     # Método para validar o valor
     def validate(self):

@@ -70,29 +70,21 @@ def index():
 
 # Lista de transações
 @app.route('/transactions')
-@login_required
+@login_required  # Protege a rota
 def transactions():
-    receitas = Transaction.query.filter_by(type='receita').all()  # Apenas receitas
-    despesas = Transaction.query.filter_by(type='despesa').all()  # Apenas despesas
+    transactions = Transaction.query.all()
+    valor = sum(transaction.amount for transaction in transactions )
+    valor_formatado = locale.currency(valor, grouping=True)
 
-    total_receitas = sum(t.amount for t in receitas)
-    total_despesas = sum(t.amount for t in despesas)
-    saldo_total = total_receitas - total_despesas
 
-    return render_template('transactions.html', 
-                           receitas=receitas, 
-                           despesas=despesas, 
-                           total_receitas=total_receitas,
-                           total_despesas=total_despesas,
-                           saldo_total=saldo_total)
-
+    
+    return render_template('transactions.html', transactions=transactions, valor_formatado=valor_formatado)
 
 # Adicionar transação
 @app.route('/add_transaction', methods=['POST'])
 @login_required  # Protege a rota
 def add_transaction():
     transaction_type = request.form['type']
-
     category = request.form['category']
     amount = request.form['amount']
     date_str = request.form['date']
