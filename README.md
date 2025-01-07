@@ -1,5 +1,4 @@
 
-
 # Finance Web App
 
 Aplicação web simples para controle de finanças pessoais usando Flask.
@@ -45,19 +44,19 @@ Instalar as dependências:
 Se você ainda não tem o pip instalado, você pode instalar as dependências com o seguinte comando:
 
 bash
-Copiar código
+
 pip install -r requirements.txt
 Se o arquivo requirements.txt não estiver presente, você pode instalar as dependências manualmente com:
 
 bash
-Copiar código
+
 pip install flask flask_sqlalchemy flask_login werkzeug
 Criar o banco de dados:
 
 A primeira vez que você rodar a aplicação, o banco de dados será criado automaticamente:
 
 bash
-Copiar código
+
 flask shell
 >>> from db import db, init_app
 >>> init_app(app)
@@ -66,7 +65,7 @@ Executar a aplicação:
 Para iniciar o servidor de desenvolvimento:
 
 bash
-Copiar código
+
 flask run
 A aplicação estará disponível em http://127.0.0.1:5000.
 
@@ -91,7 +90,6 @@ Licença
 Este projeto está licenciado sob a licença MIT - veja o arquivo LICENSE para detalhes.
 
 markdown
-Copiar código
 
 ### Explicação:
 

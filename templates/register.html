@@ -3,4 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro
+    <title>Registro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Cadastro de Usuário</h2>
+
+        <!-- Exibir mensagens de erro e sucesso -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul>
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('register') }}">
+            <div class="form-group">
+                <label for="username">Nome de Usuário:</label>
+                <input type="text" id="username" name="username" required placeholder="Digite seu nome de usuário">
+            </div>
+            <div class="form-group">
+                <label for="password">Senha:</label>
+                <input type="password" id="password" name="password" required placeholder="Digite sua senha">
+            </div>
+            <div class="form-group">
+                <label for="password_confirm">Confirmar Senha:</label>
+                <input type="password" id="password_confirm" name="password_confirm" required placeholder="Confirme sua senha">
+            </div>
+            <button type="submit">Cadastrar</button>
+        </form>
+
+        <p>Já tem uma conta? <a href="{{ url_for('login') }}">Faça login</a></p>
+    </div>
+</body>
+</html>
