@@ -2,8 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from db import db
 
 from models.User import User
-from models.income import Income  # Importe o modelo Income
-from models.expense import Expense  # Importe o modelo Expense
+from models.income import Income  
+from models.expense import Expense  
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from datetime import datetime
@@ -103,7 +103,7 @@ def edit_transaction(id):
         # Atualiza os dados da transação
         transaction.type = transaction_type
         transaction.category = category
-        transaction.amount = float(amount)  # Certifique-se de que o valor seja do tipo float
+        transaction.amount = float(amount)  
         transaction.date = date    
 
         db.session.commit()
