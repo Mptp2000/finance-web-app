@@ -41,7 +41,7 @@ def login():
         if user and check_password_hash(user.password, password):
             login_user(user)
             flash('Login bem-sucedido!', 'success')
-            return redirect(url_for('index'))
+            return redirect(url_for('dashboard'))
         else:
             flash('Credenciais inválidas.', 'error')
 
@@ -49,10 +49,8 @@ def login():
 
 # Página inicial
 @app.route('/')
-@login_required
 def index():
-    return redirect(url_for('dashboard'))
-
+    return render_template('index.html')
 
 # Adicionar transação
 @app.route('/add_transaction', methods=['POST'])
