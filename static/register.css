@@ -1,0 +1,18 @@
+/* Estilo da flash message */
+.flash-messages {
+    list-style: none;
+    padding: 0;
+}
+
+.flash-messages .alert {
+    margin-bottom: 10px;
+}
+
+/* Estilização do container de cadastro */
+.card {
+    border-radius: 8px;
+}
+
+body {
+    background-color: #f8f9fa;
+}
