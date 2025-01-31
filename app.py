@@ -50,6 +50,7 @@ def login():
 # Página inicial
 @app.route('/')
 def index():
+
     return render_template('index.html')
 
 # Adicionar transação
