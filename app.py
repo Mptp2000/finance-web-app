@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from db import db
-
 from models.User import User
 from models.income import Income  
 from models.expense import Expense  
@@ -9,6 +8,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from datetime import datetime
 from config import Config
 import locale
+from flask_migrate import Migrate
 
 
 # Configura o local para o Brasil
@@ -20,6 +20,7 @@ app.config.from_object(Config)
 
 # Inicializando a instância do SQLAlchemy
 db.init_app(app)
+migrate = Migrate(app, db)
 
 # Configuração do login manager
 login_manager = LoginManager()
@@ -129,6 +130,8 @@ def register():
         username = request.form['username']
         password = request.form['password']
         password_confirm = request.form['password_confirm']
+        name = request.form['name']
+        email = request.form['email']
 
         if password != password_confirm:
             flash('As senhas não coincidem!', 'danger')
@@ -140,7 +143,7 @@ def register():
             return redirect(url_for('register'))
 
         hashed_password = generate_password_hash(password)
-        new_user = User(username=username, password=hashed_password)
+        new_user = User(username=username, password=hashed_password,name=name,email=email)
         db.session.add(new_user)
         db.session.commit()
 
@@ -312,6 +315,12 @@ def delete_expense(id):
 
     flash("Despesa excluída com sucesso!", "success")
     return redirect(url_for('dashboard'))
+
+
+@app.route('/perfil', methods={'GET','POST'})
+@login_required
+def perfil ():
+ return render_template('perfil.html')    
 
 
 
