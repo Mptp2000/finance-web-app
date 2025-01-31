@@ -1,9 +1,40 @@
-.btn{
-  
-    justify-content: center;
-    align-items: center;
-    margin: 0;
-    display: flex;
-    height: 80vh;
+body{
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif
 }
 
+h1{
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+
+.btn{
+    padding: 1opx 2opx;
+    font-size: 18px;
+    border-radius: 8px;
+    text-decoration: none;
+
+}
+
+.btn-primary{
+    background-color: #007bff;
+    border: none
+
+}
+
+.btn-primary:hover{
+    background-color: #0056b3;
+
+}
+
+.btn-sucess{
+    background-color: #28a745;
+    border: none;
+    color: #ffff
+}
+
+.btn-sucess:hover{
+    background-color: #218838;
+    color: #ffff
+}
