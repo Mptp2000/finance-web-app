@@ -1,17 +1,41 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends "base.html" %}
 
-    <title>Perfil</title>
-</head>
-<body>
-    <h1> Hello World</h1>
+{% block content %}
+<header><a href="{{ (url_for( 'dashboard' )) }}" class="btn btn-link">Inicio</a></header>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-body text-center">
+            
+        
+    
+    <img src="https://via.placeholder.com/150" class="rounded-circle mb-3" width="150" alt="Foto de perfil">
+     
+    
+    <h3 class="card-title"> {{ user.username }}</h3> 
 
-</body>   
+    <p clas="text-muted">{{ user.email }}</p>
+
+    <p class="card-body">{{ user.name }}</p>
+    
+    <a href="{{ url_for('logout') }}" class="btn btn-danger">Sair</a>
+    <a href="{{ url_for('editar_perfil') }}" class="btn btn-primary">Editar Perfil</a>
+
+ 
+
+
+ 
+    
+  </div>
+   </div>
+   </div>
+   </div>
+
+
+</div>
 
 
 
 
-</html>
+{% endblock %}

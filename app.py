@@ -9,6 +9,8 @@ from datetime import datetime
 from config import Config
 import locale
 from flask_migrate import Migrate
+from models.forms import EditProfileForm
+
 
 
 # Configura o local para o Brasil
@@ -216,6 +218,10 @@ def add_expense():
         new_expense= Expense(amount=amount, description=description,date=date, user_id=current_user.id)
         db.session.add(new_expense)
         db.session.commit()
+
+
+        flash("Receita adicionada com sucesso!", "success")
+        return redirect(url_for('dashboard'))
         
 
     
@@ -320,10 +326,31 @@ def delete_expense(id):
 @app.route('/perfil', methods={'GET','POST'})
 @login_required
 def perfil ():
- return render_template('perfil.html')    
+    
+ return render_template('perfil.html',user=current_user ) 
 
 
 
+@app.route('/editar_perfil', methods=['GET', 'POST'])
+@login_required
+def editar_perfil():
+    form = EditProfileForm()
+
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.email = form.email.data
+        current_user.name = form.name.data
+        db.session.commit()
+        flash('Perfil atualizado com sucesso!', 'success')
+        return redirect(url_for('perfil'))  
+
+   
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.email.data = current_user.email
+        form.name.data = current_user.name
+
+    return render_template('editar_perfil.html', form=form)
 
 # Executa o servidor
 if __name__ == '__main__':

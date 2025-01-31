@@ -4,25 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <!-- Adicionando o Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Estilo adicional -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
-    <div class="container">
-        <header>
+    {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert alert-info">
+                    <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% endwith %}
+    <div class="container mt-4">
+        <header class="d-flex justify-content-between align-items-center mb-4">
+            
             <h1>Bem-vindo, {{ current_user.username }}</h1>
-            <a href="{{ url_for('logout') }}" class="logout-btn">Sair</a>
+            <div>
+                <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm">Sair</a>
+                <a href="{{ url_for('perfil') }}" class="btn btn-primary btn-sm">Perfil</a>
+            </div>
         </header>
 
         <section class="dashboard">
             <h2>Transações</h2>
 
-            <div class="buttons">
-                <a href="{{ url_for('add_income') }}" class="btn">Adicionar Receita</a>
-                <a href="{{ url_for('add_expense') }}" class="btn">Adicionar Despesa</a>
+            <div class="mb-3">
+                <a href="{{ url_for('add_income') }}" class="btn btn-success btn-sm">Adicionar Receita</a>
+                <a href="{{ url_for('add_expense') }}" class="btn btn-warning btn-sm">Adicionar Despesa</a>
             </div>
 
             <h3>Receitas</h3>
-            <table>
+            <table class="table table-bordered">
                 <thead>
                     <tr>
                         <th>Valor</th>
@@ -38,20 +57,20 @@
                             <td>{{ income.description }}</td>
                             <td>{{ income.date }}</td>
                             <td>
-                                <a href="{{ url_for('edit_income', id=income.id) }}" class="btn btn-warning">Editar</a>
-                                <a href="{{ url_for('delete_income', id=income.id) }}" class="btn btn-danger">Excluir</a>
+                                <a href="{{ url_for('edit_income', id=income.id) }}" class="btn btn-warning btn-sm">Editar</a>
+                                <a href="{{ url_for('delete_income', id=income.id) }}" class="btn btn-danger btn-sm">Excluir</a>
                             </td>
                         </tr>
                     {% else %}
                         <tr>
-                            <td colspan="4">Nenhuma receita registrada.</td>
+                            <td colspan="4" class="text-center">Nenhuma receita registrada.</td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
 
             <h3>Despesas</h3>
-            <table>
+            <table class="table table-bordered">
                 <thead>
                     <tr>
                         <th>Valor</th>
@@ -67,24 +86,30 @@
                             <td>{{ expense.description }}</td>
                             <td>{{ expense.date }}</td>
                             <td>
-                                <a href="{{ url_for('edit_expense', id=expense.id) }}" class="btn btn-warning">Editar</a>
-                                <a href="{{ url_for('delete_expense', id=expense.id) }}" class="btn btn-danger">Excluir</a>
+                                <a href="{{ url_for('edit_expense', id=expense.id) }}" class="btn btn-warning btn-sm">Editar</a>
+                                <a href="{{ url_for('delete_expense', id=expense.id) }}" class="btn btn-danger btn-sm">Excluir</a>
                             </td>
                         </tr>
                     {% else %}
                         <tr>
-                            <td colspan="4">Nenhuma despesa registrada.</td>
+                            <td colspan="4" class="text-center">Nenhuma despesa registrada.</td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </section>
+
+        <!-- Exibir Totais -->
+        <div class="mt-4">
+            <h3>Total de Receitas: {{ total_income | format_currency }}</h3>
+            <h3>Total de Despesas: {{ total_expenses | format_currency }}</h3>
+            <h3>Patrimônio: {{ net_worth | format_currency }}</h3>
+        </div>
     </div>
 
-    <div>
-        <h3>Total de Receitas: {{ total_income | format_currency }}</h3>
-        <h3>Total de Despesas: {{ total_expenses | format_currency }}</h3>
-        <h3>Patrimônio: {{ net_worth | format_currency }}</h3>
-    </div>
+    <!-- Scripts do Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
 </body>
 </html>
