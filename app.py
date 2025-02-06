@@ -10,6 +10,7 @@ from config import Config
 import locale
 from flask_migrate import Migrate
 from models.forms import EditProfileForm
+from wtforms.validators import InputRequired, Email
 
 
 
@@ -56,74 +57,6 @@ def index():
 
     return render_template('index.html')
 
-# Adicionar transação
-@app.route('/add_transaction', methods=['POST'])
-@login_required
-def add_transaction():
-    transaction_type = request.form['type']
-    category = request.form['category']
-    amount = request.form['amount']
-    date_str = request.form['date']
-
-    if not transaction_type or not category or not amount or not date_str:
-        flash("Todos os campos são obrigatórios!", "danger")
-        return redirect(url_for('transactions'))
-
-    try:
-        date = datetime.strptime(date_str, '%Y-%m-%d').date()
-    except ValueError:
-        flash("Data inválida. Use o formato YYYY-MM-DD.", "danger")
-        return redirect(url_for('transactions'))
-
-    new_transaction = Transaction(type=transaction_type, category=category, amount=float(amount), date=date)
-    db.session.add(new_transaction)
-    db.session.commit()
-
-    flash("Transação adicionada com sucesso!", "success")
-    return redirect(url_for('transactions'))
-
-# Editar transação
-@app.route('/edit/<int:id>', methods=['GET', 'POST'])
-@login_required
-def edit_transaction(id):
-    transaction = Transaction.query.get_or_404(id)
-
-    if request.method == 'POST':
-        # Captura os dados do formulário
-        transaction_type = request.form['type']
-        category = request.form['category']
-        amount = request.form['amount']
-        date_str = request.form['date']
-
-        try:
-            date = datetime.strptime(date_str, '%Y-%m-%d').date()
-        except ValueError:
-            flash("Data inválida. Use o formato YYYY-MM-DD.", "danger")
-            return redirect(url_for('edit_transaction', id=id))
-
-        
-        # Atualiza os dados da transação
-        transaction.type = transaction_type
-        transaction.category = category
-        transaction.amount = float(amount)  
-        transaction.date = date    
-
-        db.session.commit()
-        flash("Transação atualizada com sucesso!", "success")
-        return redirect(url_for('transactions'))
-
-    return render_template('edit_transaction.html', transaction=transaction)
-
-# Excluir transação
-@app.route('/delete/<int:id>')
-@login_required
-def delete_transaction(id):
-    transaction = Transaction.query.get_or_404(id)
-    db.session.delete(transaction)
-    db.session.commit()
-
-    flash("Transação excluída com sucesso!", "success")
-    return redirect(url_for('transactions'))
 
 # Página de registro
 @app.route('/register', methods=['GET', 'POST'])
@@ -239,7 +172,11 @@ def add_expense():
 @login_required
 def logout():
     logout_user()  # Desloga o usuário
+    
+    
+    flash('Deslogado com sucesso', 'sucess')
     return redirect(url_for('login'))  # Redireciona para a página de login
+
 
 
 # Criação de tabelas na inicialização
@@ -351,6 +288,11 @@ def editar_perfil():
         form.name.data = current_user.name
 
     return render_template('editar_perfil.html', form=form)
+
+@app.route('/trocar_senha', methods=['GET', 'POST'])
+def trocar_senha():
+
+    return render_template('trocar_senha.html')    
 
 # Executa o servidor
 if __name__ == '__main__':

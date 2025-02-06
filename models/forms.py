@@ -9,4 +9,4 @@ class EditProfileForm(FlaskForm):
     submit = SubmitField('Salvar Alterações')
 
 
-    
+     
