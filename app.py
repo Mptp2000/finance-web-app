@@ -1,17 +1,15 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
-from db import db
 from models.User import User
 from models.income import Income  
 from models.expense import Expense  
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from datetime import datetime
 from config import Config
 import locale
 from flask_migrate import Migrate
 from models.forms import EditProfileForm
-from wtforms.validators import InputRequired, Email
-
+from werkzeug.security import check_password_hash, generate_password_hash
+from db import db  
 
 
 # Configura o local para o Brasil
@@ -28,18 +26,32 @@ migrate = Migrate(app, db)
 # Configuração do login manager
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'login'
+login_manager.login_view = 'user_login'
 
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
 
-# Página de login
+# Função para criar o admin
+def create_admin():
+    admin = User(
+        username='admin',
+        password=generate_password_hash('admin'),  # Usando generate_password_hash para gerar o hash da senha
+        email='admin@email.com',
+        name='Admin User',  
+        is_admin=True
+    )
+    db.session.add(admin)
+    db.session.commit()
+
+
+
 @app.route('/login', methods=['GET', 'POST'])
-def login():
+def user_login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        print(f"Tentando fazer login com: {username} / {password}")  # Verifique no console
         user = User.query.filter_by(username=username).first()
 
         if user and check_password_hash(user.password, password):
@@ -48,15 +60,14 @@ def login():
             return redirect(url_for('dashboard'))
         else:
             flash('Credenciais inválidas.', 'error')
+            print("Credenciais inválidas")  # Verifique se o login está falhando
 
     return render_template('login.html')
-
+    
 # Página inicial
 @app.route('/')
 def index():
-
     return render_template('index.html')
-
 
 # Página de registro
 @app.route('/register', methods=['GET', 'POST'])
@@ -78,7 +89,7 @@ def register():
             return redirect(url_for('register'))
 
         hashed_password = generate_password_hash(password)
-        new_user = User(username=username, password=hashed_password,name=name,email=email)
+        new_user = User(username=username, password=hashed_password, name=name, email=email)
         db.session.add(new_user)
         db.session.commit()
 
@@ -105,12 +116,9 @@ def dashboard():
     incomes = Income.query.filter_by(user_id=user_id).all()
     expenses = Expense.query.filter_by(user_id=user_id).all()
 
-    # Retorna o render do template dashboard.html
     return render_template('dashboard.html', total_income=total_income, total_expenses=total_expenses, net_worth=net_worth, incomes=incomes, expenses=expenses)
 
-
-from datetime import datetime
-
+# Rota para adicionar uma receita
 @app.route('/add_income', methods=['GET', 'POST'])
 @login_required
 def add_income():
@@ -134,50 +142,37 @@ def add_income():
 
     return render_template('add_income.html')
 
-
-
-
+# Rota para adicionar uma despesa
 @app.route('/add_expense', methods=['GET', 'POST'])
+@login_required
 def add_expense():
     if request.method == 'POST':
-        # Captura os valores enviados pelo formulário
-        amount = request.form['amount']
+        amount = float(request.form['amount'])  # Convertendo para float
         description = request.form['description']
         date_str = request.form['date']
+        
+        try:
+            date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except ValueError:
+            flash("Data inválida. Use o formato YYYY-MM-DD.", "danger")
+            return redirect(url_for('add_expense'))
 
-
-        date = datetime.strptime(date_str,  '%Y-%m-%d').date()
- 
-        new_expense= Expense(amount=amount, description=description,date=date, user_id=current_user.id)
+        new_expense = Expense(amount=amount, description=description, date=date, user_id=current_user.id)
         db.session.add(new_expense)
         db.session.commit()
 
-
-        flash("Receita adicionada com sucesso!", "success")
+        flash("Despesa adicionada com sucesso!", "success")
         return redirect(url_for('dashboard'))
-        
 
-    
-
-     
-        return redirect(url_for('dashboard'))  # Redireciona para o dashboard
     return render_template('add_expense.html')
 
-
-
-
-
-
+# Rota de logout
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()  # Desloga o usuário
-    
-    
-    flash('Deslogado com sucesso', 'sucess')
-    return redirect(url_for('login'))  # Redireciona para a página de login
-
-
+    flash('Deslogado com sucesso', 'success')
+    return redirect(url_for('user_login'))  # Redireciona para a página de login
 
 # Criação de tabelas na inicialização
 @app.before_request
@@ -192,14 +187,14 @@ def format_currency(value):
     except Exception:
         return value
 
-
+# Editar receita
 @app.route('/edit_income/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_income(id):
     income = Income.query.get_or_404(id)
 
     if request.method == 'POST':
-        income.amount = request.form['amount']
+        income.amount = float(request.form['amount'])  # Convertendo para float
         income.description = request.form['description']
         date_str = request.form['date']
 
@@ -215,6 +210,7 @@ def edit_income(id):
 
     return render_template('edit_income.html', income=income)
 
+# Excluir receita
 @app.route('/delete_income/<int:id>', methods=['GET'])
 @login_required
 def delete_income(id):
@@ -225,15 +221,14 @@ def delete_income(id):
     flash("Receita excluída com sucesso!", "success")
     return redirect(url_for('dashboard'))
 
-
-
+# Editar despesa
 @app.route('/edit_expense/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_expense(id):
     expense = Expense.query.get_or_404(id)
     
     if request.method == 'POST':
-        expense.amount = request.form['amount']
+        expense.amount = float(request.form['amount'])  # Convertendo para float
         expense.description = request.form['description']
         date_str = request.form['date']
         
@@ -249,6 +244,7 @@ def edit_expense(id):
     
     return render_template('edit_expense.html', expense=expense)
 
+# Excluir despesa
 @app.route('/delete_expense/<int:id>', methods=['GET'])
 @login_required
 def delete_expense(id):
@@ -259,15 +255,13 @@ def delete_expense(id):
     flash("Despesa excluída com sucesso!", "success")
     return redirect(url_for('dashboard'))
 
-
-@app.route('/perfil', methods={'GET','POST'})
+# Perfil do usuário
+@app.route('/perfil', methods=['GET', 'POST'])
 @login_required
-def perfil ():
-    
- return render_template('perfil.html',user=current_user ) 
+def perfil():
+    return render_template('perfil.html', user=current_user)
 
-
-
+# Editar perfil
 @app.route('/editar_perfil', methods=['GET', 'POST'])
 @login_required
 def editar_perfil():
@@ -281,7 +275,6 @@ def editar_perfil():
         flash('Perfil atualizado com sucesso!', 'success')
         return redirect(url_for('perfil'))  
 
-   
     elif request.method == 'GET':
         form.username.data = current_user.username
         form.email.data = current_user.email
@@ -289,10 +282,11 @@ def editar_perfil():
 
     return render_template('editar_perfil.html', form=form)
 
+# Trocar senha
 @app.route('/trocar_senha', methods=['GET', 'POST'])
+@login_required
 def trocar_senha():
-
-    return render_template('trocar_senha.html')    
+    return render_template('trocar_senha.html')
 
 # Executa o servidor
 if __name__ == '__main__':

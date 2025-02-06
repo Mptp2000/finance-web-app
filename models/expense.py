@@ -7,5 +7,4 @@ class Expense(db.Model):
     description = db.Column(db.String(255), nullable=True)
     date = db.Column(db.Date, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  
-
-    user = db.relationship('User', backref='user_expenses')  
+    user = db.relationship('User', back_populates='expenses')

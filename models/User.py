@@ -8,8 +8,10 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(150), nullable=False)
     email = db.Column(db.String(150), nullable=True)
     name = db.Column(db.String(150), nullable=False)
+    is_admin = db.Column(db.Boolean, default= False)
   
     
 
-    incomes = db.relationship('Income', backref='user_incomes')  
-    expenses = db.relationship('Expense', backref='user_expenses') 
+    incomes = db.relationship('Income', back_populates='user')
+    
+    expenses = db.relationship('Expense', back_populates='user')
