@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from models.User import User
 from models.income import Income  
 from models.expense import Expense  
+from models.forms import EditProfileForm, RegisterForm
 
 
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
@@ -9,7 +10,7 @@ from datetime import datetime
 from config import Config
 import locale
 from flask_migrate import Migrate
-from models.forms import EditProfileForm
+
 from werkzeug.security import check_password_hash, generate_password_hash
 from db import db  
 from flask_admin import Admin
@@ -62,35 +63,48 @@ def user_login():
 def index():
     return render_template('index.html')
 
-# Página de registro
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        password_confirm = request.form['password_confirm']
-        name = request.form['name']
-        email = request.form['email']
+    form = RegisterForm()
 
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+        password_confirm = form.password_confirm.data
+        name = form.name.data
+        email = form.email.data
+
+        # Verifica se as senhas coincidem
         if password != password_confirm:
-            flash('As senhas não coincidem!', 'danger')
+            flash('As senhas não coincidem. Tente novamente.', 'danger')
             return redirect(url_for('register'))
 
+        # Verifica se o nome de usuário já existe
         user = User.query.filter_by(username=username).first()
         if user:
-            flash('Nome de usuário já existe', 'danger')
+            flash('Nome de usuário já existe. Escolha outro.', 'danger')
             return redirect(url_for('register'))
 
-        hashed_password = generate_password_hash(password)
-        new_user = User(username=username, password=hashed_password, name=name, email=email)
-        db.session.add(new_user)
-        db.session.commit()
+        try:
+            # Criptografa a senha
+            hashed_password = generate_password_hash(password)
 
-        flash('Usuário registrado com sucesso!', 'success')
-        return redirect(url_for('user_login'))
+            # Cria o novo usuário
+            new_user = User(username=username, password=hashed_password, name=name, email=email)
+            db.session.add(new_user)
+            db.session.commit()
 
-    return render_template('register.html')
+            flash('Usuário registrado com sucesso! Agora faça login.', 'success')
+            return redirect(url_for('user_login'))
 
+        except Exception as e:
+            # Caso haja algum erro no processo de registro, exibe uma mensagem
+            flash(f'Ocorreu um erro ao registrar o usuário: {str(e)}', 'danger')
+            return redirect(url_for('register'))
+
+    return render_template('register.html', form=form)
 # Dashboard
 @app.route('/dashboard')
 @login_required
