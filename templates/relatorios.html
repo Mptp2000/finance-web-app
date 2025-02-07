@@ -2,7 +2,7 @@
 
 {% block content %}
 <div>
-    <a href="{{ url_for('dashboard') }}" class="btn  btn-sm">Voltar</a>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-sm">Voltar</a>
 </div>
 <div class="container mt-5">
     <h2 class="text-center mb-4">Relatórios Financeiros</h2>
@@ -39,80 +39,84 @@
     <div class="row mb-4 justify-content-center">
         <div class="col-md-6">
             <div class="chart-container">
-                <canvas id="pieChart" width="400" height="400"></canvas>
+                <canvas id="pieChart"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- Tabela de Despesas -->
-    <div class="table-responsive">
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Descrição</th>
-                    <th>Valor</th>
-                    <th>Tipo</th>
-                    <th>Data</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for expense in expenses %}
-                <tr>
-                    <td>{{ expense.description }}</td>
-                    <td>R$ {{ expense.amount }}</td>
-                    <td>{{'Despesa' if expense.type == 'expense' else 'Receita' }}</td>
-                    <td>{{ expense.date }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+  
+<!-- Importando a biblioteca Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <!-- Script do Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var ctx = document.getElementById('pieChart').getContext('2d');
-        var myChart = new Chart(ctx, {
-            type: 'pie',
+    document.addEventListener("DOMContentLoaded", function () {
+        var canvas = document.getElementById("pieChart");
+
+        if (!canvas) {
+            console.error("Erro: Elemento canvas não encontrado!");
+            return;
+        }
+
+        var ctx = canvas.getContext("2d");
+
+        // Convertendo valores para números e garantindo que não sejam NaN
+        var receitas = Number("{{ total_income | default(0) }}") || 0;
+        var despesas = Number("{{ total_expense | default(0) }}") || 0;
+
+        console.log("Receitas:", receitas, "Despesas:", despesas);
+
+        var chart = new Chart(ctx, {
+            type: "pie",
             data: {
-                labels: ['Receitas', 'Despesas'],
+                labels: ["Receitas", "Despesas"],
                 datasets: [{
-                    data: [{{ total_income }}, {{ total_expense }}],
-                    backgroundColor: ['#4CAF50', '#F44336'],
-                    borderColor: ['#388E3C', '#D32F2F'],
-                    borderWidth: 1
+                    data: [receitas, despesas],
+                    backgroundColor: ["#36A2EB", "#FF6384"], 
                 }]
             },
             options: {
-                responsive: true,  // Gráfico vai redimensionar conforme a tela
-                maintainAspectRatio: false,  // Permite que o gráfico tenha altura controlada
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: function (tooltipItem) {
-                                return 'R$ ' + tooltipItem.raw.toFixed(2);
-                            }
-                        }
-                    },
                     legend: {
-                        position: 'top',  // Posição da legenda
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 16, /* Aumentando tamanho da fonte */
+                                weight: 'bold' /* Deixando em negrito */
+                            },
+                            color: "#222", /* Cor escura para melhor contraste */
+                            padding: 20, /* Espaçamento entre os itens da legenda */
+                            boxWidth: 20, /* Tamanho do quadrado de cor na legenda */
+                        }
                     }
                 }
             }
         });
+
+        console.log("Gráfico carregado com sucesso!");
     });
 </script>
 
 <!-- Estilização para o gráfico -->
 <style>
     .chart-container {
-        position: relative;
+        position:relative;
         width: 100%;
-        height: 300px;
+        max-width: 400px;
+        height: 400px;
         margin: auto;
     }
 </style>
 
 {% endblock %}
+
+
+ 
+
+
+
+
