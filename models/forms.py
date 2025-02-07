@@ -10,3 +10,4 @@ class EditProfileForm(FlaskForm):
 
 
      
+#Edição de Perfil#

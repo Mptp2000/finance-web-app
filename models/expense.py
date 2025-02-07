@@ -8,3 +8,8 @@ class Expense(db.Model):
     date = db.Column(db.Date, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  
     user = db.relationship('User', back_populates='expenses')
+
+
+
+
+#Formulário de despesa#

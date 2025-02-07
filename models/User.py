@@ -9,9 +9,13 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(150), nullable=True)
     name = db.Column(db.String(150), nullable=False)
     is_admin = db.Column(db.Boolean, default= False)
+    
   
     
 
     incomes = db.relationship('Income', back_populates='user')
     
     expenses = db.relationship('Expense', back_populates='user')
+
+
+#Dados de usuário#

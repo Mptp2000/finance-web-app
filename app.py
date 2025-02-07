@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from models.User import User
 from models.income import Income  
 from models.expense import Expense  
+
+
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from datetime import datetime
 from config import Config
@@ -10,8 +12,9 @@ from flask_migrate import Migrate
 from models.forms import EditProfileForm
 from werkzeug.security import check_password_hash, generate_password_hash
 from db import db  
-
-
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
+    
 # Configura o local para o Brasil
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
@@ -23,6 +26,8 @@ app.config.from_object(Config)
 db.init_app(app)
 migrate = Migrate(app, db)
 
+
+
 # Configuração do login manager
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -31,18 +36,6 @@ login_manager.login_view = 'user_login'
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
-
-# Função para criar o admin
-def create_admin():
-    admin = User(
-        username='admin',
-        password=generate_password_hash('admin'),  # Usando generate_password_hash para gerar o hash da senha
-        email='admin@email.com',
-        name='Admin User',  
-        is_admin=True
-    )
-    db.session.add(admin)
-    db.session.commit()
 
 
 
@@ -94,7 +87,7 @@ def register():
         db.session.commit()
 
         flash('Usuário registrado com sucesso!', 'success')
-        return redirect(url_for('login'))
+        return redirect(url_for('user_login'))
 
     return render_template('register.html')
 
@@ -287,6 +280,33 @@ def editar_perfil():
 @login_required
 def trocar_senha():
     return render_template('trocar_senha.html')
+
+
+@app.route('/relatorios')
+@login_required
+def relatorios():
+    user_id = current_user.id
+
+    # Filtrar transações do usuário logado
+    expenses = Expense.query.filter_by(user_id=user_id).all()
+    incomes = Income.query.filter_by(user_id=user_id).all()
+
+    # Calcular totais
+    total_income = sum(income.amount for income in incomes)  # Soma todas as receitas
+    total_expense = sum(expense.amount for expense in expenses)  # Soma todas as despesas
+
+    balance = total_income - total_expense
+
+    return render_template('relatorios.html', 
+                           expenses = expenses,
+                           incomes = incomes,
+                           total_income=total_income, 
+                           total_expense=total_expense, 
+                           balance=balance)
+
+
+
+
 
 # Executa o servidor
 if __name__ == '__main__':
