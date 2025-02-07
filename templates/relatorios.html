@@ -1,11 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div>
-    <a href="{{ url_for('dashboard') }}" class="btn btn-sm">Voltar</a>
-</div>
+
 <div class="container mt-5">
+    <div class="text-end mb-3">
+        <button onclick="window.print()" class="btn btn-secondary">Imprimir Relatório</button>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Voltar</a>
+    </div>
     <h2 class="text-center mb-4">Relatórios Financeiros</h2>
+
+   
 
     <!-- Total de Receitas, Despesas e Saldo -->
     <div class="row mb-4">
